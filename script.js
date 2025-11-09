@@ -1,63 +1,62 @@
 // script.js
 const inputs = Array.from(document.querySelectorAll('.code'));
 
-// Ensure first input is focused on load
+// Focus the first input when the page loads
 window.addEventListener('DOMContentLoaded', () => {
   const first = document.getElementById('code-1');
   if (first) first.focus();
 });
 
-// Helper: move focus safely by index
+// Utility to move focus safely
 function focusAt(i) {
   if (i >= 0 && i < inputs.length) inputs[i].focus();
 }
 
-// Distribute a string of digits starting at a given index
+// Distribute multiple pasted digits starting from index
 function fillDigitsFrom(index, str) {
+  const digits = str.replace(/\D/g, '');
   let i = index;
-  for (const ch of str.replace(/\D/g, '').slice(0, inputs.length - index)) {
+  for (const ch of digits) {
+    if (i >= inputs.length) break;
     inputs[i].value = ch;
     i++;
-    if (i >= inputs.length) break;
   }
-  // Focus next empty slot or last
-  const nextEmpty = inputs.findIndex((inp) => inp.value === '');
-  if (nextEmpty !== -1) {
-    focusAt(nextEmpty);
-  } else {
-    focusAt(inputs.length - 1);
-  }
+  // Focus next empty slot if any, else last
+  const nextEmpty = inputs.findIndex(inp => inp.value === '');
+  if (nextEmpty !== -1) focusAt(nextEmpty);
+  else focusAt(inputs.length - 1);
 }
 
 inputs.forEach((input, index) => {
-  // Only allow a single digit; auto-advance; handle paste sequences
   input.addEventListener('input', (e) => {
     let v = e.target.value;
-    // If user pasted multiple chars, distribute
+
+    // If user pasted multiple chars, distribute them
     if (v.length > 1) {
       fillDigitsFrom(index, v);
       return;
     }
+
     // Keep only one numeric character
     v = v.replace(/\D/g, '');
     e.target.value = v;
+
+    // Move to next on valid digit
     if (v && index < inputs.length - 1) {
       focusAt(index + 1);
     }
   });
 
-  // Handle navigation and deletion logic
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Backspace') {
+      // If current has a value, delete it and keep focus here
       if (input.value) {
-        // Delete current value first; keep focus here
         input.value = '';
-        // After clearing, place caret here (for visual consistency)
         return;
       }
-      // If current empty, move to previous and clear it
+      // If current is empty, move back, clear that, and focus it
       if (index > 0) {
-        e.preventDefault(); // prevent browser default
+        e.preventDefault();
         const prev = inputs[index - 1];
         prev.value = '';
         focusAt(index - 1);
@@ -75,7 +74,7 @@ inputs.forEach((input, index) => {
     }
   });
 
-  // Select existing value on focus for quick overwrite
+  // Select current value on focus for quick overwrite
   input.addEventListener('focus', () => {
     input.select?.();
   });
