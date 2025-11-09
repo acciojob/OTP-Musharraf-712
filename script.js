@@ -1,18 +1,18 @@
 // script.js
 const inputs = Array.from(document.querySelectorAll('.code'));
 
-// Focus the first input when the page loads
+// Ensure first input is focused on load (so cy.focused() has a subject)
 window.addEventListener('DOMContentLoaded', () => {
   const first = document.getElementById('code-1');
   if (first) first.focus();
 });
 
-// Utility to move focus safely
+// Utility: move focus by index safely
 function focusAt(i) {
   if (i >= 0 && i < inputs.length) inputs[i].focus();
 }
 
-// Distribute multiple pasted digits starting from index
+// Distribute pasted digits across inputs starting from index
 function fillDigitsFrom(index, str) {
   const digits = str.replace(/\D/g, '');
   let i = index;
@@ -21,7 +21,6 @@ function fillDigitsFrom(index, str) {
     inputs[i].value = ch;
     i++;
   }
-  // Focus next empty slot if any, else last
   const nextEmpty = inputs.findIndex(inp => inp.value === '');
   if (nextEmpty !== -1) focusAt(nextEmpty);
   else focusAt(inputs.length - 1);
@@ -31,7 +30,7 @@ inputs.forEach((input, index) => {
   input.addEventListener('input', (e) => {
     let v = e.target.value;
 
-    // If user pasted multiple chars, distribute them
+    // Handle paste of multiple chars
     if (v.length > 1) {
       fillDigitsFrom(index, v);
       return;
@@ -41,7 +40,7 @@ inputs.forEach((input, index) => {
     v = v.replace(/\D/g, '');
     e.target.value = v;
 
-    // Move to next on valid digit
+    // Auto-advance on valid digit
     if (v && index < inputs.length - 1) {
       focusAt(index + 1);
     }
@@ -49,12 +48,12 @@ inputs.forEach((input, index) => {
 
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Backspace') {
-      // If current has a value, delete it and keep focus here
+      // If current has a value, clear it and keep focus here
       if (input.value) {
         input.value = '';
         return;
       }
-      // If current is empty, move back, clear that, and focus it
+      // If current is empty, move to previous, clear it, and focus there
       if (index > 0) {
         e.preventDefault();
         const prev = inputs[index - 1];
@@ -74,7 +73,7 @@ inputs.forEach((input, index) => {
     }
   });
 
-  // Select current value on focus for quick overwrite
+  // Select existing value on focus for quick overwrite
   input.addEventListener('focus', () => {
     input.select?.();
   });
