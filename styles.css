@@ -1,8 +1,18 @@
-/*  your css code here. If applicable */
 body {
   font-family: Arial, sans-serif;
   text-align: center;
   padding-top: 50px;
+  background-color: #f9f9f9;
+}
+
+#verification_heading {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+#verification_subtext {
+  font-size: 16px;
+  color: #555;
 }
 
 .code-container {
